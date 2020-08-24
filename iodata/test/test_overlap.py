@@ -19,13 +19,12 @@
 """Test iodata.overlap & iodata.overlap_accel modules."""
 
 import numpy as np
-from numpy.testing import assert_equal, assert_allclose, assert_array_almost_equal
+from numpy.testing import assert_allclose
 from pytest import raises
 
 from ..api import load_one
 from ..basis import MolecularBasis, Shell
-from ..overlap import OVERLAP_CONVENTIONS
-from ..overlap import compute_overlap
+from ..overlap import compute_overlap, OVERLAP_CONVENTIONS
 
 try:
     from importlib_resources import path
@@ -49,7 +48,6 @@ def test_normalization_basics_generalized():
         shells = [Shell(0, [angmom] * 2, ['c', 'p'], np.array([0.23]), np.array([[1.0, 1.0]]))]
         obasis = MolecularBasis(shells, OVERLAP_CONVENTIONS, 'L2')
         atcoords = np.zeros((1, 3))
-        print('atcoords = ', atcoords)
         overlap = compute_overlap(obasis, atcoords)
         assert_allclose(np.diag(overlap), np.ones(obasis.nbasis))
 
@@ -86,36 +84,3 @@ def test_overlap_l1():
     atcoords = np.zeros((1, 3))
     with raises(ValueError):
         _ = compute_overlap(dbasis, atcoords)
-
-
-# def test_overlap_matrix_big():
-#     import time
-#     # load overlap and atomic basis data (s, p & pure d shells)
-#     # with path('iodata.test.data', "c8h10n4o2_q+0_uhf_ccpvtz.fchk") as fn_npy:
-#     # with path('iodata.test.data', "big.molden") as fn_npy:
-#     with path('iodata.test.data', "water_hfs_321g.fchk") as fn_npy:
-#         data = load_one(fn_npy)
-#
-#     # d = {key: value for key, value in d.items()}
-#     start = time.time()
-#     overlap = compute_overlap(data.obasis, data.atcoords)
-#     end = time.time()
-#     print('old')
-#     dt_old = end - start
-#     print(overlap.shape, dt_old)
-#     # check overlap matrix
-#     # assert_array_almost_equal(overlap, compute_overlap(data.obasis, data.atcoords), decimal=6)
-#     # dn = {"centers": d["centers"], "shell_index": d["shell_map"], "shell_type": d["shell_types"],
-#     #       "shell_nprim": d["nprims"], "prim_alpha": d["alphas"], "prim_coeff": d["con_coeffs"]}
-#     # assert_array_almost_equal(overlap, compute_overlap_matrix(**dn), decimal=6)
-#     print('new')
-#     start = time.time()
-#     new = compute_overlap_py(data.obasis, data.atcoords)
-#     end = time.time()
-#     dt_new = end - start
-#     print(new.shape, dt_new)
-#     print("")
-#     print("max diff = ", np.max(abs(new - overlap)))
-#     print("dt ratio = ", dt_new / dt_old)
-#     assert_array_almost_equal(overlap, new, decimal=6)
-# #     assert 5 == 6
